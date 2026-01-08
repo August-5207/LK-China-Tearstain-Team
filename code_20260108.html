@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LK中国泪痕车队 - 欧洲卡车模拟2官方网站</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        :root {
+            --main-color: #e63946; /* 品牌红 */
+            --sub-color: #2b2d42;
+            --light-color: #edf2f4;
+            --gray-color: #8d99ae;
+        }
+        body {
+            background-color: var(--sub-color);
+            color: var(--light-color);
+            overflow-x: hidden;
+            scroll-behavior: smooth; /* 平滑滚动 */
+        }
+        /* 导航栏样式 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(43, 45, 66, 0.95);
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999;
+            transition: all 0.3s ease;
+        }
+        .navbar.scrolled {
+            padding: 0.5rem 5%;
+            background-color: rgba(43, 45, 66, 1);
+        }
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: var(--light-color);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: var(--main-color);
+        }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-right .team-eng {
+            color: var(--main-color);
+            font-weight: bold;
+        }
+        .btn {
+            padding: 0.5rem 1.2rem;
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #d62828;
+        }
+        /* 一键到顶按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--main-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 998;
+        }
+        .back-to-top.show {
+            opacity: 1;
+        }
+        /* Hero 区样式 */
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url("https://user0890.cn.imgto.link/public/20260108/1000017831.avif");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 5%;
+            position: relative;
+        }
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            color: var(--main-color);
+            text-shadow: 0 0 15px rgba(230, 57, 70, 0.6);
+            letter-spacing: 2px;
+        }
+        .hero .eng-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            color: var(--light-color);
+            opacity: 0.9;
+        }
+        .hero .slogan {
+            font-size: 1.4rem;
+            margin-bottom: 4rem;
+            line-height: 1.8;
+            max-width: 800px;
+        }
+        .hero-btns {
+            display: flex;
+            gap: 2rem;
+        }
+        .hero-btns .btn {
+            font-size: 1.2rem;
+            padding: 1rem 2.5rem;
+            border-radius: 6px;
+        }
+        .scroll-tip {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 1rem;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% {transform: translateY(0);}
+            50% {transform: translateY(-10px);}
+        }
+        /* 通用板块样式 */
+        .section {
+            padding: 5rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .section-title {
+            font-size: 2.2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: var(--main-color);
+            position: relative;
+        }
+        .section-title::after {
+            content: "";
+            width: 80px;
+            height: 3px;
+            background-color: var(--main-color);
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        /* 车队简介样式 */
+        .intro {
+            background-color: var(--light-color);
+            color: var(--sub-color);
+        }
+        .intro-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        .intro-text h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--main-color);
+        }
+        .intro-text p {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .intro-img img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+        /* 核心成员样式 */
+        .members {
+            background-color: var(--sub-color);
+        }
+        .member-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .card {
+            background-color: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            border: 1px solid var(--main-color);
+        }
+        .card h4 {
+            font-size: 1.3rem;
+            color: var(--main-color);
+            margin-bottom: 0.8rem;
+        }
+        .card .tag {
+            color: var(--gray-color);
+            margin-bottom: 1rem;
+        }
+        .card p {
+            line-height: 1.6;
+        }
+        /* 车队信息样式 */
+        .team-info {
+            background-color: var(--light-color);
+            color: var(--sub-color);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .info-item h3 {
+            color: var(--main-color);
+            margin-bottom: 1.5rem;
+        }
+        .info-item p, .info-item li {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .info-item li {
+            margin-left: 2rem;
+        }
+        /* 车队规则样式 */
+        .team-rules {
+            background-color: var(--sub-color);
+        }
+        .rules-content {
+            background-color: rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: 8px;
+        }
+        .rules-content h3 {
+            color: var(--main-color);
+            margin-bottom: 2rem;
+        }
+        .rules-content h4 {
+            color: var(--light-color);
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .rules-content p, .rules-content li {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        .rules-content li {
+            margin-left: 2rem;
+        }
+        /* 招新要求样式 */
+        .join-require {
+            background-color: var(--light-color);
+            color: var(--sub-color);
+        }
+        .require-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .require-item h3 {
+            color: var(--main-color);
+            margin-bottom: 1.5rem;
+        }
+        .require-item li {
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            margin-left: 2rem;
+        }
+        /* 活动预告样式 */
+        .activity {
+            background-color: var(--sub-color);
+        }
+        .activity-content {
+            background-color: rgba(255,255,255,0.1);
+            padding: 3rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .activity-content h3 {
+            color: var(--main-color);
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+        .activity-list {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            text-align: left;
+        }
+        .activity-list li {
+            list-style: none;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.1rem;
+        }
+        .activity-list li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .activity-list span {
+            color: var(--main-color);
+            font-weight: bold;
+        }
+        /* 招新与联系样式 */
+        .join-contact {
+            background-color: var(--light-color);
+            color: var(--sub-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        .join-list li {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        .contact-info p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+        .contact-info p strong {
+            color: var(--main-color);
+        }
+        /* 一键复制提示 */
+        .copy-tip {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--main-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .copy-tip.show {
+            opacity: 1;
+        }
+        /* 响应式适配 */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero .eng-title {
+                font-size: 1.4rem;
+            }
+            .intro-content, .info-grid, .require-content, .join-contact {
+                grid-template-columns: 1fr;
+            }
+            .rules-content, .activity-content {
+                padding: 2rem;
+            }
+            .back-to-top {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 隐藏式背景音乐（10首歌循环播放，替换下方链接即可） -->
+    <audio id="bgMusic" loop hidden>
+        <!-- 第1首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569064114-cf99ab84-3247-42e0-a3a7-bfb81892178d.mp3" type="audio/mpeg">
+        <!-- 第2首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569095434-a1524b48-278b-4aab-8636-694c2e259445.mp3
+" type="audio/mpeg">
+        <!-- 第3首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569132603-7f96ba1a-8861-4f80-8a96-a8fdfd36f034.mp3
+" type="audio/mpeg">
+        <!-- 第4首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569157933-65bb6445-fd4b-401a-9cd7-25771fce741f.mp3
+ " type="audio/mpeg">
+        <!-- 第5首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569178265-f2259b27-eb34-4472-b02a-2379e08eab15.mp3
+" type="audio/mpeg">
+        <!-- 第6首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569200815-efa10233-984e-4043-bf56-9f3da30fa667.mp3
+" type="audio/mpeg">
+        <!-- 第7首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569227115-28ada36e-4c10-41d8-8c3d-fd7a929bcfb2.flac" type="audio/mpeg">
+        <!-- 第8首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569255522-ff7cf92b-e378-438b-8605-03f25b2658e2.mp3
+" type="audio/mpeg">
+        <!-- 第9首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569535331-7467dc66-2afb-4c3e-9e5f-8cfeedfda6db.mp3
+" type="audio/mpeg">
+        <!-- 第10首歌 -->
+        <source src="https://image2url.com/r2/bucket1/audio/1766569622865-5fbfd14f-472a-4e4b-89b5-b6098fe844c7.mp3" type="audio/mpeg">
+        您的浏览器不支持音频播放
+    </audio>
+    <!-- 复制提示框 -->
+    <div class="copy-tip" id="copyTip">复制成功！</div>
+    <!-- 一键到顶按钮 -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    <!-- 导航栏 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-links">
+            <a href="#home">首页</a>
+            <a href="#intro">车队简介</a>
+            <a href="#members">核心成员</a>
+            <a href="#team-info">车队信息</a>
+            <a href="#team-rules">车队规则</a>
+            <a href="#join-require">招新要求</a>
+            <a href="#activity">活动预告</a>
+            <a href="#join">招新入口</a>
+        </div>
+        <div class="nav-right">
+            <span class="team-eng">LK China Tearstain Team</span>
+            <button class="btn" onclick="scrollToTarget('#join')">加入我们</button>
+        </div>
+    </nav>
+    <!-- Hero 区 -->
+    <section class="hero" id="home">
+        <h1>LK中国泪痕车队</h1>
+        <p class="eng-title">LK China Tearstain Team</p>
+        <p class="slogan">路有尽头，爱无止境，LK泪痕，一路同行!</p>
+        <div class="hero-btns">
+            <button class="btn" onclick="scrollToTarget('#join')">立即加入</button>
+            <button class="btn" onclick="scrollToTarget('#join-require')">了解招新</button>
+        </div>
+        <p class="scroll-tip">向下滑动探索更多 →</p>
+    </section>
+    <!-- 车队简介 -->
+    <section class="section intro" id="intro">
+        <h2 class="section-title">车队简介</h2>
+        <div class="intro-content">
+            <div class="intro-text">
+                <h3>2025年12月10日全新启航的ETS2联运车队</h3>
+                <p>我们是一群热爱《欧洲卡车模拟2》的玩家，怀揣着对运输事业的无限热情，于2025年12月10日成立了LK中国泪痕车队。我们立志在中国运输线路的模拟世界中崭露头角，以专业、团结、进取为核心价值观，打造一支具有强大凝聚力的车队。</p>
+                <p>在这片虚拟的欧洲大陆上，我们将驾驶着一辆辆卡车，穿越山川河流，跨越城市乡村，将货物安全、及时地送达目的地。我们不仅是运输的执行者，更是梦想的追逐者，希望能在游戏中留下属于我们的独特痕迹。</p>
+                <h3>车队标识</h3>
+                <p>游戏内标签：LK-TearstainsVTC</p>
+                <p>核心标语：路有尽头，爱无止境，LK泪痕，一路同行！</p>
+            </div>
+            <div class="intro-img">
+                <img src="https://user0890.cn.imgto.link/public/20260108/1000017838.avif" alt="LK中国泪痕车队标识">
+            </div>
+        </div>
+    </section>
+    <!-- 核心成员 -->
+    <section class="section members" id="members">
+        <h2 class="section-title">核心成员</h2>
+        <div class="member-cards">
+            <div class="card">
+                <h4>LK·湖癔（创始人）</h4>
+                <p class="tag">车队创始人 | 战略规划</p>
+                <p>LK中国泪痕车队的发起者，负责车队整体战略规划与文化建设，是车队的精神核心，为车队发展制定长远方向。</p>
+            </div>
+            <div class="card">
+                <h4>LK·彼得帕克（队长）</h4>
+                <p class="tag">车队队长 | 联运组织者</p>
+                <p>负责车队日常管理、联运活动策划与现场指挥，协调队员分工，保障每一次联运活动的顺利开展。</p>
+            </div>
+            <div class="card">
+                <h4>LK·meyan（经理）</h4>
+                <p class="tag">车队经理 | 技术指导</p>
+                <p>担任车队经理一职，熟悉ETS2各类路线与联运规则，负责新人教学、技术指导与车队制度落地执行。</p>
+            </div>
+        </div>
+    </section>
+    <!-- 车队信息 -->
+    <section class="section team-info" id="team-info">
+        <h2 class="section-title">车队信息</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <h3>基本信息</h3>
+                <p><strong>车队名称：</strong>LK中国泪痕车队</p>
+                <p><strong>英文名：</strong>LK China Tearstain Team</p>
+                <p><strong>游戏内标签：</strong>LK-TearstainsVTC</p>
+                <p><strong>成立时间：</strong>2025年12月10日</p>
+                <p><strong>核心价值观：</strong>专业、团结、进取</p>
+            </div>
+            <div class="info-item">
+                <h3>未来规划</h3>
+                <ul>
+                    <li><strong>短期规划：</strong>1个月内组织成员培训，提升驾驶技巧与协作能力，参与游戏内运输比赛</li>
+                    <li><strong>中期规划：</strong>3个月内扩大车队规模，建立任务分配、财务管理等管理体系</li>
+                    <li><strong>长期规划：</strong>6-12个月内与其他VTC车队合作，开展大型运输项目，成为圈内有影响力的车队</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- 车队规则 -->
+    <section class="section team-rules" id="team-rules">
+        <h2 class="section-title">车队规则</h2>
+        <div class="rules-content">
+            <h3>中国泪痕车队基本规则</h3>
+            <h4>一、宗旨与目标</h4>
+            <p>本车队致力于在相关领域展现卓越风采，通过参与各类活动和赛事，提升成员的专业技能与综合素质，弘扬积极向上的团队文化。为成员提供一个优质的交流与成长平台，在活动和赛事中取得优异成绩，扩大车队的影响力和知名度。</p>
+            
+            <h4>二、成员招募</h4>
+            <p><strong>专业能力：</strong>具备与车队活动相关的专业技能，如熟练驾驶车辆等。需通过车队组织的专业能力测试，内容包括驾驶技巧、应急处理等项目。</p>
+            <p><strong>过往记录：</strong>未曾因违规行为被其他车队封禁，无严重不良记录。如有在其他车队的经历，需如实说明离开原因。</p>
+            
+            <h4>三、成员纪律</h4>
+            <p><strong>账号管理：</strong>严禁使用违规手段获取游戏优势或导致账号被封的行为。若账号因个人违规被封，将自动失去车队成员资格。</p>
+            <p><strong>团队合作：</strong>成员之间需保持良好的沟通与协作，不得辱骂、诋毁队友。在团队活动中，要听从指挥，积极配合。</p>
+            <p><strong>行驶规范：</strong>在车队行驶过程中，要严格遵守交通规则，不得故意撞车、恶意阻挡其他车辆。若因个人原因导致严重交通事故，需承担相应责任。</p>
+            
+            <h4>四、奖惩制度</h4>
+            <p><strong>奖励：</strong>对在活动和赛事中表现优秀、为车队赢得荣誉的成员，将给予物质奖励和荣誉表彰。</p>
+            <p><strong>惩罚：</strong>对于违反车队规则的成员，将根据情节轻重给予警告、停赛、开除等处罚。</p>
+            
+            <h4>五、退出VTC</h4>
+            <p><strong>主动退出：</strong>成员若因个人原因想要退出车队，需提前2天以书面形式向车队管理层提出申请。申请中应详细说明退出原因。在获得批准后的1天内，成员需完成相关交接工作，包括归还车队提供的物品、设备，清理账号绑定的车队相关信息等。主动退出后，成员可自由选择加入其他车队，但不得泄露本车队的机密信息和技术资料。</p>
+            <p><strong>被动退出：</strong>
+                <ol>
+                    <li>违规行为：若成员违反车队创办规则，如在行驶中故意撞车、恶意骂人，使用违规手段获取游戏优势，或账号被封禁等严重违规行为，车队管理层有权立即将其从车队中除名。管理层需以正式通知的方式告知违规成员被除名的原因与结果。</li>
+                    <li>不履行义务：成员若连续5次无故不参加车队组织的活动、赛事，或长期不完成分配的任务，且未提前说明合理原因，车队将视其为不履行成员义务。经过管理层提醒后仍未改善的，将被劝退退出车队。劝退後仍不配合退出的，车队有权强制其退出，并保留追究其相关责任的权利。</li>
+                </ol>
+            </p>
+            <p><strong>退出后影响：</strong>无论主动或被动退出车队，成员在退出后的2个月内不得在公开场合发表诋毁车队形象、损害车队名誉的言论。若违反此规定，车队将保留追究其法律责任的权利。此外，对于因严重违规被被动退出的成员，在1年内不得再次申请加入本车队。</p>
+        </div>
+    </section>
+    <!-- 招新要求 -->
+    <section class="section join-require" id="join-require">
+        <h2 class="section-title">招新要求</h2>
+        <div class="require-content">
+            <div class="require-item">
+                <h3>成员基本条件</h3>
+                <ul>
+                    <li>1. 热爱《欧洲卡车模拟2》，遵守游戏规则和车队规章制度。</li>
+                    <li>2. 具备良好的团队合作精神，能够积极参与车队活动。</li>
+                    <li>3. 每周至少上线2小时，完成一定的运输任务。</li>
+                    <li>4. 尊重其他队员，保持友好、和谐的交流氛围。</li>
+                    <li>5. 年满16周岁，不限男女</li>
+                </ul>
+            </div>
+            <div class="require-item">
+                <h3>游戏相关要求</h3>
+                <ul>
+                    <li>游戏时长：拥有至少500小时以上的《欧洲卡车模拟2》游戏时长，以此确保对游戏的地图、机制有较为深入的了解。</li>
+                    <li>驾驶风格：驾驶过程中需保持文明、安全，不进行危险驾驶行为，如频繁急刹车、违规超车等。在连续10次运输任务中，违规次数不得超过2次。</li>
+                    <li>团队协作：具备良好的团队协作精神，愿意参与车队组织的联运活动。每月至少参加2次车队联运，且准时到达联运集合点。</li>
+                    <li>联运准时性：联运活动开始前15分钟需在游戏内做好准备，活动开始后5分钟内必须就位。若因特殊情况无法参加联运，需提前12小时向车队管理报备。</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+    <!-- 活动预告 -->
+    <section class="section activity" id="activity">
+        <h2 class="section-title">活动预告</h2>
+        <div class="activity-content">
+            <h3>车队全新启航，超多活动即将上线！</h3>
+            <ul class="activity-list">
+                <li><span>2026.03.20</span> - 内部新手教学联运（基础路线+规则讲解，适合纯新人）</li>
+                <li><span>2026.04.05</span> - 趣味主题联运（自定义路线+道具互动，轻松欢乐）</li>
+                <li><span>2026.04.20</span> - 跨车队友谊联运（与友好车队合作，互相交流学习）</li>
+                <li><span>长期活动</span> - 每日随机组队跑图，新人带飞计划，技术交流分享会</li>
+            </ul>
+            <p>所有活动将提前在社群通知，参与无门槛，只要你符合招新要求，就能加入！</p>
+            <button class="btn" onclick="scrollToTarget('#join')">加入社群，获取活动提醒</button>
+        </div>
+    </section>
+    <!-- 招新与联系（已删除无用按钮和流程步骤） -->
+    <section class="section join-contact" id="join">
+        <div class="join">
+            <h2 class="section-title">招新入口</h2>
+            <h3>招新流程</h3>
+            <ul class="join-list">
+                <li>1. 加入官方QQ接待群咨询报名（群号：586183221）</li>
+                <li>2. 等待管理层审核（1-2个工作日）</li>
+                <li>3. 审核通过后，进入车队考核群</li>
+                <li>4. 完成专业能力测试（驾驶技巧+应急处理）</li>
+                <li>5. 测试通过后，正式加入车队，领取车队标识</li>
+            </ul>
+        </div>
+        <div class="contact">
+            <h2 class="section-title">联系我们</h2>
+            <div class="contact-info">
+                <p><strong>官方QQ总群：</strong><span onclick="copyQQ('398898728')" style="cursor: pointer; text-decoration: underline;">398898728</span>（成员交流主群）</p>
+                <p><strong>官方QQ接待群：</strong><span onclick="copyQQ('586183221')" style="cursor: pointer; text-decoration: underline;">586183221</span>（招新咨询专用）</p>
+                <p><strong>官方快手账号：</strong><span onclick="copyText('SOFS5207')" style="cursor: pointer; text-decoration: underline;">SOFS5207</span>（更新车队日常动态）</p>
+                <p>备注：所有社群均为纯交流，无任何费用</p>
+            </div>
+        </div>
+    </section>
+    <script>
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            const backToTop = document.getElementById('backToTop');
+            
+            // 导航栏滚动收缩
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // 一键到顶按钮显示/隐藏
+            if (window.scrollY > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        // 平滑滚动到指定区域
+        function scrollToTarget(target) {
+            const element = document.querySelector(target);
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+        // 一键到顶
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        // 复制QQ号
+        function copyQQ(qq) {
+            navigator.clipboard.writeText(qq);
+            showCopyTip();
+        }
+        // 复制文本（快手号）
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            showCopyTip();
+        }
+        // 显示复制成功提示
+        function showCopyTip() {
+            const tip = document.getElementById('copyTip');
+            tip.classList.add('show');
+            setTimeout(() => {
+                tip.classList.remove('show');
+            }, 2000);
+        }
+        // 10首背景音乐循环播放（兼容浏览器限制）
+        const bgMusic = document.getElementById('bgMusic');
+        let hasPlayed = false;
+        // 首次点击页面触发播放
+        document.addEventListener('click', () => {
+            if (!hasPlayed) {
+                bgMusic.play().catch(err => {
+                    console.log('音乐播放被浏览器阻止，请再点击一次页面');
+                });
+                hasPlayed = true;
+            }
+        }, { once: true });
+        // 页面滚动触发播放（增强兼容性）
+        document.addEventListener('scroll', () => {
+            if (!hasPlayed) {
+                bgMusic.play().catch(() => {});
+                hasPlayed = true;
+            }
+        }, { once: true });
+        // 音乐播放完毕自动切换下一首（浏览器原生支持，无需额外逻辑）
+    </script>
+</body>
+</html>
